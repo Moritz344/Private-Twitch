@@ -9,13 +9,15 @@ from main import NavBar
 from termcolor import cprint,colored
 from customtkinter import *
 import customtkinter as ctk
+import multiprocessing
 
 load_dotenv("secret.env")
 Twitch_token = os.getenv("TOKEN")
 channel = "ohnePixel"
 
 chat_queue = queue.Queue()
-stop_event = threading.Event()
+stop_event = multiprocessing.Event()
+chat_process = None
 
 class Chat(commands.Bot):
     def __init__(self,channel):
@@ -44,6 +46,7 @@ def run_chat(channel):
 def stop_chat():
     print("Stopping chat ...")
     stop_event.set()
+
 
 if __name__ == "__main__":
     run_chat(channel)

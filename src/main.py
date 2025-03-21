@@ -23,48 +23,65 @@ from PIL import Image,ImageTk
 
 
 class NavBar(object):
-    def __init__(self,window,textbox,streamer):
+    def __init__(self,window,textbox,streamer,cat_img,cat_label):
         
         self.btnState = False
         self.nav_icon = ctk.CTkImage(Image.open("assets/menu.png"),size=(30,30))
-        self.close_icon = ctk.CTkImage(Image.open("assets/close.png"),size=(30,30))
+        self.close_icon = ctk.CTkImage(Image.open("assets/close.png"),size=(40,40))
 
         self.textbox = textbox
         self.streamer_liste = (list(streamer))
+        self.cat_img = cat_img
+        self.cat_label = cat_label
+
+        self.background_color = "#282828"
+        self.panels_color = "#3c3836"
+        self.hover_color = "#665c54"
+        self.text_color = "#edd892"
         
         self.window = window
         self.frame_color = "#333333"
         
-        self.topFrame = ctk.CTkFrame(window,fg_color=self.frame_color,height=50)
-        self.topFrame.pack(padx=0,pady=0,side="top",fill=tk.X)
+        self.topFrame = ctk.CTkFrame(window,fg_color=self.panels_color,height=50,width=1920,corner_radius=0)
+        self.topFrame.pack(padx=0,pady=0,side="top",)
 
         self.navbarBtn = ctk.CTkButton(self.topFrame,text="",
-        image=self.nav_icon,hover_color=self.frame_color,fg_color=self.frame_color,border_width=0,
+        image=self.nav_icon,hover_color=self.panels_color,fg_color=self.panels_color,
         command=self.switch)
-        self.navbarBtn.place(x=0,y=5)
+
+        self.navbarBtn.place(x=-45,y=5)
         
         self.navRoot = ctk.CTkFrame(window,fg_color=self.frame_color,height=1000,width=300)
         self.navRoot.place(x=-300,y=0)
-
+        
 
         
         self.channel_btn = ctk.CTkButton(self.navRoot,fg_color=self.frame_color,
-        text="Streamer",hover_color="green",font=("opensans",30),command=self.change_streamer)
-        self.channel_btn.place(x=50,y=50)
+        text="Streamer",hover_color=self.hover_color,text_color=self.text_color,font=("opensans",40),command=self.change_streamer)
+        self.channel_btn.place(x=50,y=200)
 
         self.exit_btn = ctk.CTkButton(self.navRoot,fg_color=self.frame_color,
-        text="Exit",hover_color="green",font=("opensans",30),command=lambda: sys.exit(0) )
-        self.exit_btn.place(x=50,y=100)
+        text="Settings",hover_color=self.hover_color,text_color=self.text_color,font=("opensans",40),)
+        self.exit_btn.place(x=50,y=250)
 
         self.settings_btn = ctk.CTkButton(self.navRoot,fg_color=self.frame_color,
-        text="Settings",hover_color="green",font=("opensans",30),command=lambda: sys.exit(0) )
-        self.settings_btn.place(x=50,y=150)
+        text="About",hover_color=self.hover_color,width=0,text_color=self.text_color,font=("opensans",40),)
+        self.settings_btn.place(x=50,y=300)
+
+        self.settings_btn = ctk.CTkButton(self.navRoot,fg_color=self.frame_color,
+        text="Exit",hover_color=self.hover_color,text_color=self.text_color,font=("opensans",40),command=lambda: sys.exit(0) ,
+        width=0)
+        self.settings_btn.place(x=50,y=350)
+
+
 
         self.navBar_close = ctk.CTkButton(self.navRoot,text="",image=self.close_icon,
         fg_color=self.frame_color,hover_color=self.frame_color,command=self.switch)
-        self.navBar_close.place(x=200,y=10)
+        self.navBar_close.place(x=200,y=14)
 
 
+        ctk.CTkLabel(self.navRoot,fg_color=self.frame_color,text="Private Twitch",text_color="white",
+        font=("opensans",30)).place(x=35,y=20)
 
         self.chat_thread = None
 
@@ -82,11 +99,11 @@ class NavBar(object):
         self.streamer = new_channel
 
         self.textbox.delete("0.0","end")
+        self.cat_label.place_forget()
 
-        proc = multiprocessing.Process(target=run_chat,args=(self.streamer))
 
-        #self.stop_chat()
-        #self.start_chat(self.streamer)
+        self.stop_chat()
+        self.start_chat(self.streamer)
 
 
 
@@ -110,14 +127,23 @@ class NavBar(object):
     def change_streamer(self):
         self.frame = ctk.CTkFrame(self.window,width=500,height=500,)
         self.frame.place(x=200,y=100)
+
+
         self.channel_var = tk.StringVar()
-        self.channel_name = ctk.CTkEntry(self.frame,font=("opensans",30),width=200,height=30,
+        self.channel_name = ctk.CTkEntry(self.frame,font=("opensans",30),width=300,height=50,
         textvariable=self.channel_var)
-        self.channel_name.place(x=180,y=250)
+        self.channel_name.place(x=100,y=200)
 
         self.submit_btn = ctk.CTkButton(self.frame,font=("opensans",30),text="Submit"
-        ,command=self.switch_streamer)
-        self.submit_btn.place(x=180,y=300)
+        ,command=self.switch_streamer,text_color=self.text_color,hover_color=self.hover_color,fg_color=self.background_color)
+        self.submit_btn.place(x=100,y=300)
+
+        self.cancel_btn = ctk.CTkButton(self.frame,font=("opensans",30),text="Cancel"
+        ,command=lambda: self.frame.place_forget(),text_color=self.text_color,hover_color=self.hover_color,
+        fg_color=self.background_color)
+        self.cancel_btn.place(x=260,y=300)
+
+        ctk.CTkLabel(self.frame,font=("opensans",40),text="Add a Streamer ...").place(x=110,y=100)
 
         ctk.CTkButton(self.frame,text="",image=self.close_icon,
         fg_color=self.frame.cget("fg_color")
@@ -130,17 +156,18 @@ class NavBar(object):
 
     def switch(self):
         if self.btnState :
-            for x in range(301):
+            for x in range(300):
                 self.navRoot.place(x=-x,y=0)
                 self.topFrame.update()
 
-            self.topFrame.configure(fg_color="grey17")
-            self.window.configure(fg_color="grey17")
+            self.topFrame.configure(fg_color=self.panels_color)
+            self.window.configure(fg_color=self.background_color)
             
             self.btnState = False
         else:
-            self.topFrame.configure(fg_color="grey17")
-            self.window.configure(fg_color="grey17")
+            # ÖFFNEN
+            self.topFrame.configure(fg_color=self.panels_color)
+            self.window.configure(fg_color=self.background_color)
 
             for x in range(-300,0):
                 self.navRoot.place(x=x,y=0)
@@ -152,7 +179,7 @@ class NavBar(object):
 class App(ctk.CTk):
     def __init__(self):
         super().__init__()
-        self.title("Chat")
+        self.title("meow")
         self.geometry("800x710")
 
         self.minsize(800,710)
@@ -161,27 +188,31 @@ class App(ctk.CTk):
         self.channel_name = channel
         self.streamer = []
 
-        self.farben = random.choice(["blue","yellow"])
 
-        
-
-
-        self.fg_colors = ["#7cafc4","#edd892","#4c9f70"]
+        self.fg_color = "#edd892"
 
         self.textbox = ctk.CTkTextbox(self,width=1920,height=1080,
-        font=("opensans",20),text_color="white",)
+        font=("opensans",20),text_color="white",fg_color="#2a2b2a")
         self.textbox.place(x=0,y=50)
-        self.textbox.insert("end","Chat Nachrichten werden generiert ... \n")
+        self.textbox.insert("end","No Streamer added yet ... \n")
+
+
 
         # nametag farbe ändern mit tag funktion
-        self.textbox.tag_config("name_tag", foreground=random.choice(self.fg_colors), )
+        self.textbox.tag_config("name_tag", foreground=self.fg_color, )
         self.textbox.tag_config("content_tag", foreground="white", )
 
-        if "Chat Nachrichten werden generiert ..." in self.textbox.get("1.0","end"):
+        if "No Streamer added yet ..." in self.textbox.get("1.0","end"):
                     self.textbox.configure(text_color="#edd892")
         
         self.update_chat()
-        self.n = NavBar(self,self.textbox,self.streamer)
+
+        self.cat_img = ctk.CTkImage(Image.open("assets/play.png"),size=(100,100))
+        self.cat_label = ctk.CTkLabel(self,text="",fg_color="#2a2b2a",image=self.cat_img)
+        self.cat_label.place(x=300,y=300)
+
+        NavBar(self,self.textbox,self.streamer,self.cat_img,self.cat_label)
+
 
         self.mainloop()
 
