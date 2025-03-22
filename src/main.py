@@ -28,6 +28,7 @@ class NavBar(object):
         self.btnState = False
         self.nav_icon = ctk.CTkImage(Image.open("assets/menu.png"),size=(30,30))
         self.close_icon = ctk.CTkImage(Image.open("assets/close.png"),size=(40,40))
+        self.bot_icon = ctk.CTkImage(Image.open("assets/bot.png"),size=(120,90))
 
         self.textbox = textbox
         self.streamer_liste = (list(streamer))
@@ -60,18 +61,19 @@ class NavBar(object):
         text="Streamer",hover_color=self.hover_color,text_color=self.text_color,font=("opensans",40),command=self.change_streamer)
         self.channel_btn.place(x=50,y=200)
 
+        self.about_btn = ctk.CTkButton(self.navRoot,fg_color=self.frame_color,
+        text="About",hover_color=self.hover_color,text_color=self.text_color,font=("opensans",40),)
+        self.about_btn.place(x=42,y=300)
+
+        self.settings_btn = ctk.CTkButton(self.navRoot,fg_color=self.frame_color,
+        text="Settings",hover_color=self.hover_color,width=0,text_color=self.text_color,font=("opensans",40),
+        command=self.settings_window)
+        self.settings_btn.place(x=50,y=250)
+
         self.exit_btn = ctk.CTkButton(self.navRoot,fg_color=self.frame_color,
-        text="Settings",hover_color=self.hover_color,text_color=self.text_color,font=("opensans",40),)
-        self.exit_btn.place(x=50,y=250)
-
-        self.settings_btn = ctk.CTkButton(self.navRoot,fg_color=self.frame_color,
-        text="About",hover_color=self.hover_color,width=0,text_color=self.text_color,font=("opensans",40),)
-        self.settings_btn.place(x=50,y=300)
-
-        self.settings_btn = ctk.CTkButton(self.navRoot,fg_color=self.frame_color,
         text="Exit",hover_color=self.hover_color,text_color=self.text_color,font=("opensans",40),command=lambda: sys.exit(0) ,
         width=0)
-        self.settings_btn.place(x=50,y=350)
+        self.exit_btn.place(x=49,y=350)
 
 
 
@@ -85,8 +87,50 @@ class NavBar(object):
 
         self.chat_thread = None
 
-
     
+    def settings_window(self):
+        window = ctk.CTkToplevel()
+        window.title("Settings")
+        window.geometry("500x500")
+
+
+        def write_token():
+            load_dotenv("secret.env")
+            TOKEN=os.getenv("TOKEN")
+            self.token_input.insert("end",f"{TOKEN}")
+        
+        def no_focus_entry(event=None):
+            window.focus_set()
+
+            # save access token in .env file
+
+            with open("secret.env","w") as env_file:
+                env_file.write(f"TOKEN={self.token_input.get()}")
+
+
+
+
+        # input für bot acess token
+        # text farbe ändern,border spacing,font
+        
+        bot_img = ctk.CTkLabel(window,text="",image=self.bot_icon)
+        bot_img.place(x=30,y=20)
+
+        ctk.CTkLabel(window,text="ACCESS TOKEN",font=("opensans",30),
+        text_color=self.text_color).place(x=135,y=50)
+
+        self.token_input = ctk.CTkEntry(window,placeholder_text="oauth:129dfsd95394",show="*",
+        fg_color=self.background_color,
+        width=200,height=40,font=("opensans",30))
+        self.token_input.pack(padx=50,pady=100)
+        
+        write_token()
+
+        window.bind("<Return>",no_focus_entry)
+        window.bind("<Escape>",no_focus_entry)
+
+
+        window.mainloop()
     def stop_chat(self):
         if self.chat_thread and self.chat_thread.is_alive():
             stop_event.set()
@@ -101,9 +145,11 @@ class NavBar(object):
         self.textbox.delete("0.0","end")
         self.cat_label.place_forget()
 
-
-        self.stop_chat()
-        self.start_chat(self.streamer)
+        try:
+            self.stop_chat()
+            self.start_chat(self.streamer)
+        except Exception:
+            print("ai can't solve this one for sure") 
 
 
 
@@ -195,6 +241,9 @@ class App(ctk.CTk):
         font=("opensans",20),text_color="white",fg_color="#2a2b2a")
         self.textbox.place(x=0,y=50)
         self.textbox.insert("end","No Streamer added yet ... \n")
+        self.textbox.insert("end","----------------------------\n")
+        self.textbox.insert("end","If you see no messages being generated\n")
+        self.textbox.insert("end","check If you saved your acces token in the settings window\n")
 
 
 

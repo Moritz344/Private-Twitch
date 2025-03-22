@@ -13,6 +13,7 @@ import multiprocessing
 
 load_dotenv("secret.env")
 Twitch_token = os.getenv("TOKEN")
+
 channel = "ohnePixel"
 
 chat_queue = queue.Queue()
@@ -21,9 +22,12 @@ chat_process = None
 
 class Chat(commands.Bot):
     def __init__(self,channel):
-        super().__init__(token=Twitch_token,msg="",prefix=None,initial_channels=[channel])
+        try:
+            super().__init__(token=Twitch_token,msg="",prefix=None,initial_channels=[channel])
 
-        self.channel = channel
+            self.channel = channel
+        except Exception:
+            print("Vermutlich weil kein ACCESS TOKEN eingegeben wurde.")
        
     async def event_ready(self):
         print(self.nick,channel)
@@ -37,11 +41,13 @@ class Chat(commands.Bot):
 
 
 def run_chat(channel):
-
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    bot = Chat(channel)
-    loop.run_until_complete(bot.run())
+    try:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        bot = Chat(channel)
+        loop.run_until_complete(bot.run())
+    except Exception:
+        print("Vermutlich weil kein ACCESS TOKEN eingegeben wurde.")
 
 def stop_chat():
     print("Stopping chat ...")
@@ -49,4 +55,7 @@ def stop_chat():
 
 
 if __name__ == "__main__":
-    run_chat(channel)
+    try:
+        run_chat(channel)
+    except Exception:
+        print("kxdmdxgmxgm")
