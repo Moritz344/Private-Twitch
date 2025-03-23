@@ -10,6 +10,7 @@ from termcolor import cprint,colored
 from customtkinter import *
 import customtkinter as ctk
 import multiprocessing
+import CTkMessagebox
 
 load_dotenv("secret.env")
 Twitch_token = os.getenv("TOKEN")
@@ -40,13 +41,16 @@ class Chat(commands.Bot):
 
 
 
-def run_chat(channel):
+def run_chat(channel,window):
     try:
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         bot = Chat(channel)
         loop.run_until_complete(bot.run())
+
     except Exception:
+        CTkMessagebox.CTkMessagebox(window,icon="warning",font=("opensans",15),
+        message="Please check If your access token is correct and restart the app. ",title="TOKEN")
         print("Vermutlich weil kein ACCESS TOKEN eingegeben wurde.")
 
 def stop_chat():
@@ -54,8 +58,3 @@ def stop_chat():
     stop_event.set()
 
 
-if __name__ == "__main__":
-    try:
-        run_chat(channel)
-    except Exception:
-        print("kxdmdxgmxgm")

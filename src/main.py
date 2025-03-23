@@ -1,7 +1,6 @@
 import customtkinter as ctk
 import sys
 import random
-import multiprocessing
 from customtkinter import *
 from twitchio.ext import commands
 import os
@@ -11,13 +10,12 @@ import asyncio
 from tkinter import *
 import tkinter as tk
 from PIL import Image,ImageTk
-
-# TODO: ask user TWITCH_ACCESS_TOKEN
+from CTkToolTip import *
+import json
 
 # BESCHREIBUNG: Chat Nachrichten und gui laufen gleichzeitg mit threads 
 # BESCHREIBUNG: Mit queue die chat nachrichten an main senden
 
-# TODO: FINDE EINEN WEG DEN CHAT ZU STOPPEN
 
 
 
@@ -28,7 +26,7 @@ class NavBar(object):
         self.btnState = False
         self.nav_icon = ctk.CTkImage(Image.open("assets/menu.png"),size=(30,30))
         self.close_icon = ctk.CTkImage(Image.open("assets/close.png"),size=(40,40))
-        self.bot_icon = ctk.CTkImage(Image.open("assets/bot.png"),size=(120,90))
+        self.bot_icon = ctk.CTkImage(Image.open("assets/bot.png"),size=(120,80))
 
         self.textbox = textbox
         self.streamer_liste = (list(streamer))
@@ -103,11 +101,30 @@ class NavBar(object):
             window.focus_set()
 
             # save access token in .env file
-
             with open("secret.env","w") as env_file:
                 env_file.write(f"TOKEN={self.token_input.get()}")
 
+        def write_preferences_to_json(main,key,new_value):
+            try:
+                # get the content of the file
+                with open("data.json","r") as file:
+                    content = json.load(file)
 
+                if main in content:
+                    # z.b: content["preferences"]["font"] = "Arial"
+                    content[main][key] = new_value
+
+
+
+                with open("data.json","w") as file:
+                    # aktualisiere json file
+                    json.dump(content,file,indent=4)
+
+            except Exception as e:
+                print(e)
+
+        def save_text_color(choice):
+            write_preferences_to_json("settings","text_color",choice)       
 
 
         # input für bot acess token
@@ -116,13 +133,26 @@ class NavBar(object):
         bot_img = ctk.CTkLabel(window,text="",image=self.bot_icon)
         bot_img.place(x=30,y=20)
 
-        ctk.CTkLabel(window,text="ACCESS TOKEN",font=("opensans",30),
-        text_color=self.text_color).place(x=135,y=50)
+        label_1 = ctk.CTkLabel(window,text="ACCESS TOKEN",font=("opensans",30),
+        text_color=self.text_color)
+        label_1.place(x=135,y=50)
+
+        tooltip_1 = CTkToolTip(label_1,delay=0.3,message="Get your token at: https://twitchtokengenerator.com/")
+        tooltip_2 = CTkToolTip(bot_img,delay=0.3,message="Get your token at: https://twitchtokengenerator.com/")
 
         self.token_input = ctk.CTkEntry(window,placeholder_text="oauth:129dfsd95394",show="*",
         fg_color=self.background_color,
         width=200,height=40,font=("opensans",30))
         self.token_input.pack(padx=50,pady=100)
+
+        
+        ctk.CTkLabel(window,text="TEXT COLOR",font=("opensans",30),text_color=self.text_color).place(x=150,y=200)
+        
+        text_color_list = ["Standard","Green","Blue","Lila","Orange"]
+        optionmenu_1 = ctk.CTkOptionMenu(window,width=240,
+        values=text_color_list,fg_color=self.background_color,button_color="#458588",
+        command=save_text_color,button_hover_color=self.hover_color)
+        optionmenu_1.place(x=135,y=250)
         
         write_token()
 
@@ -148,8 +178,8 @@ class NavBar(object):
         try:
             self.stop_chat()
             self.start_chat(self.streamer)
-        except Exception:
-            print("ai can't solve this one for sure") 
+        except Exception as e:
+            print("ai can't solve this one for sure",e) 
 
 
 
@@ -165,9 +195,9 @@ class NavBar(object):
             print(e)
         
 
-    def start_chat(self,channel):
+    def start_chat(self,channel,):
         print(f"Starte neuen Chat für {channel}")
-        self.chat_thread = threading.Thread(target=run_chat,args=(channel,),daemon=True)
+        self.chat_thread = threading.Thread(target=run_chat,args=(channel,self.window),daemon=True)
         self.chat_thread.start()
     
     def change_streamer(self):
