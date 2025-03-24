@@ -12,6 +12,7 @@ import tkinter as tk
 from PIL import Image,ImageTk
 from CTkToolTip import *
 import json
+from settings import *
 
 # BESCHREIBUNG: Chat Nachrichten und gui laufen gleichzeitg mit threads 
 # BESCHREIBUNG: Mit queue die chat nachrichten an main senden
@@ -60,7 +61,8 @@ class NavBar(object):
         self.channel_btn.place(x=50,y=200)
 
         self.about_btn = ctk.CTkButton(self.navRoot,fg_color=self.frame_color,
-        text="About",hover_color=self.hover_color,text_color=self.text_color,font=("opensans",40),)
+        text="About",hover_color=self.hover_color,text_color=self.text_color,font=("opensans",40)
+        ,command=self.about_window)
         self.about_btn.place(x=42,y=300)
 
         self.settings_btn = ctk.CTkButton(self.navRoot,fg_color=self.frame_color,
@@ -85,6 +87,29 @@ class NavBar(object):
 
         self.chat_thread = None
 
+    def update_textbox(self):
+        self.textbox.configure(text_color=text_color)
+    
+    def about_window(self):
+        window = ctk.CTkToplevel()
+        window.title("About")
+        window.geometry("700x300")
+        window.minsize(700,300)
+        window.maxsize(700,300)
+        label_text = """
+This is the gui form of my cli twitch chat app.
+If you need help contact me on my 
+github.com/Moritz344/Private-Twitch.
+Keep in mind this is my private tool 
+for my twitch chat so don't expect to much.
+        """
+        #ctk.CTkLabel(window,text=label_text,text_color="white",font=("opensans",20)).place(x=70,y=100)
+        ctk.CTkLabel(window,text="About",text_color=self.text_color,font=("opensans",60)).place(x=12,y=10)
+
+        text_label = ctk.CTkTextbox(window,text_color="white",font=("",20),width=600,height=200)
+        text_label.place(x=10,y=80)
+        text_label.insert("end",label_text)
+        text_label.configure(state="disabled")
     
     def settings_window(self):
         window = ctk.CTkToplevel()
@@ -125,6 +150,7 @@ class NavBar(object):
 
         def save_text_color(choice):
             write_preferences_to_json("settings","text_color",choice)       
+            
 
 
         # input für bot acess token
@@ -148,11 +174,15 @@ class NavBar(object):
         
         ctk.CTkLabel(window,text="TEXT COLOR",font=("opensans",30),text_color=self.text_color).place(x=150,y=200)
         
-        text_color_list = ["Standard","Green","Blue","Lila","Orange"]
-        optionmenu_1 = ctk.CTkOptionMenu(window,width=240,
+        text_color_list = ["Standard","Green","Blue","Orange"]
+
+        self.optionmenu_1 = ctk.CTkOptionMenu(window,width=240,
         values=text_color_list,fg_color=self.background_color,button_color="#458588",
         command=save_text_color,button_hover_color=self.hover_color)
-        optionmenu_1.place(x=135,y=250)
+
+
+        self.optionmenu_1.set(text_color)
+        self.optionmenu_1.place(x=135,y=250)
         
         write_token()
 
@@ -278,7 +308,10 @@ class App(ctk.CTk):
 
 
         # nametag farbe ändern mit tag funktion
-        self.textbox.tag_config("name_tag", foreground=self.fg_color, )
+        if text_color == "Standard":
+            self.textbox.tag_config("name_tag", foreground="#edd892", )
+        else:
+            self.textbox.tag_config("name_tag", foreground=text_color, )
         self.textbox.tag_config("content_tag", foreground="white", )
 
         if "No Streamer added yet ..." in self.textbox.get("1.0","end"):
