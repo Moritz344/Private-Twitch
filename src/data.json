@@ -1,5 +1,32 @@
 {
     "settings": {
-        "text_color": "Green"
+        "text_color": "Coffeine",
+        "borderSpacing": 0
+    },
+    "colorschemes": {
+        "coffeine": [
+            "#b8bb26",
+            "#d79921",
+            "#83a598",
+            "#fe8019",
+            "#d3869b",
+            "#a89984"
+        ],
+        "lavender": [
+            "#1f1d2e",
+            "#f6c177",
+            "#9ccfd8",
+            "#f6a5c0",
+            "#c4a7e7",
+            "#c4a7e7"
+        ],
+        "quiet": [
+            "#d8dee9",
+            "#81a1c1",
+            "#4c566a",
+            "#a3be8c",
+            "#b48ead",
+            "#e5e9f0"
+        ]
     }
 }

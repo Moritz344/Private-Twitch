@@ -13,6 +13,8 @@ from PIL import Image,ImageTk
 from CTkToolTip import *
 import json
 from settings import *
+from CTkSpinbox import *
+from datetime import datetime
 
 # BESCHREIBUNG: Chat Nachrichten und gui laufen gleichzeitg mit threads 
 # BESCHREIBUNG: Mit queue die chat nachrichten an main senden
@@ -88,7 +90,8 @@ class NavBar(object):
         self.chat_thread = None
 
     def update_textbox(self):
-        self.textbox.configure(text_color=text_color)
+        self.textbox.configure(text_color=text_color,
+        border_spacing=borderSpacing)
     
     def about_window(self):
         window = ctk.CTkToplevel()
@@ -115,6 +118,8 @@ for my twitch chat so don't expect to much.
         window = ctk.CTkToplevel()
         window.title("Settings")
         window.geometry("500x500")
+
+        # font größe ändern
 
 
         def write_token():
@@ -151,10 +156,11 @@ for my twitch chat so don't expect to much.
         def save_text_color(choice):
             write_preferences_to_json("settings","text_color",choice)       
             
+        def change_border_spacing(value):
+            write_preferences_to_json("settings","borderSpacing",value)
 
 
-        # input für bot acess token
-        # text farbe ändern,border spacing,font
+        # border spacing,font
         
         bot_img = ctk.CTkLabel(window,text="",image=self.bot_icon)
         bot_img.place(x=30,y=20)
@@ -162,6 +168,15 @@ for my twitch chat so don't expect to much.
         label_1 = ctk.CTkLabel(window,text="ACCESS TOKEN",font=("opensans",30),
         text_color=self.text_color)
         label_1.place(x=135,y=50)
+
+        ctk.CTkLabel(window,text="BORDER SPACING",text_color=self.text_color,
+        font=("opensans",30)).place(x=120,y=306)
+
+        spacing_box = CTkSpinbox(window,start_value=0,max_value=50,step_value=2,min_value=0,
+        command=change_border_spacing)
+        spacing_box.place(x=190,y=355)
+
+        spacing_box.set(borderSpacing)
 
         tooltip_1 = CTkToolTip(label_1,delay=0.3,message="Get your token at: https://twitchtokengenerator.com/")
         tooltip_2 = CTkToolTip(bot_img,delay=0.3,message="Get your token at: https://twitchtokengenerator.com/")
@@ -172,9 +187,9 @@ for my twitch chat so don't expect to much.
         self.token_input.pack(padx=50,pady=100)
 
         
-        ctk.CTkLabel(window,text="TEXT COLOR",font=("opensans",30),text_color=self.text_color).place(x=150,y=200)
+        ctk.CTkLabel(window,text="COLORSCHEMES",font=("opensans",30),text_color=self.text_color).place(x=150,y=200)
         
-        text_color_list = ["Standard","Green","Blue","Orange"]
+        text_color_list = ["Coffeine","Lavender","Quiet"]
 
         self.optionmenu_1 = ctk.CTkOptionMenu(window,width=240,
         values=text_color_list,fg_color=self.background_color,button_color="#458588",
@@ -263,7 +278,7 @@ for my twitch chat so don't expect to much.
     def switch(self):
         if self.btnState :
             for x in range(300):
-                self.navRoot.place(x=-x,y=0)
+                self.navRoot.place(x=-x * 2,y=0)
                 self.topFrame.update()
 
             self.topFrame.configure(fg_color=self.panels_color)
@@ -276,7 +291,7 @@ for my twitch chat so don't expect to much.
             self.window.configure(fg_color=self.background_color)
 
             for x in range(-300,0):
-                self.navRoot.place(x=x,y=0)
+                self.navRoot.place(x=x * 4,y=0)
                 self.topFrame.update()
             
             self.btnState = True
@@ -296,25 +311,23 @@ class App(ctk.CTk):
 
 
         self.fg_color = "#edd892"
+        self.random_color = ["red","blue"]
 
         self.textbox = ctk.CTkTextbox(self,width=1920,height=1080,
-        font=("opensans",20),text_color="white",fg_color="#2a2b2a")
+        font=("opensans",20),text_color="white",border_spacing=borderSpacing,fg_color="#2a2b2a")
         self.textbox.place(x=0,y=50)
-        self.textbox.insert("end","No Streamer added yet ... \n")
+        self.textbox.insert("end","No Streamer added yet :/ \n")
         self.textbox.insert("end","----------------------------\n")
         self.textbox.insert("end","If you see no messages being generated\n")
         self.textbox.insert("end","check If you saved your acces token in the settings window\n")
-
-
+        
 
         # nametag farbe ändern mit tag funktion
-        if text_color == "Standard":
-            self.textbox.tag_config("name_tag", foreground="#edd892", )
-        else:
-            self.textbox.tag_config("name_tag", foreground=text_color, )
-        self.textbox.tag_config("content_tag", foreground="white", )
 
-        if "No Streamer added yet ..." in self.textbox.get("1.0","end"):
+        self.textbox.tag_config("content_tag", foreground="white", )
+        self.textbox.tag_config("date_tag", foreground="white", )
+
+        if "No Streamer added yet " in self.textbox.get("1.0","end"):
                     self.textbox.configure(text_color="#edd892")
         
         self.update_chat()
@@ -336,19 +349,38 @@ class App(ctk.CTk):
             while not chat_queue.empty():
                 msg = chat_queue.get()
                 
+                
+                self.datetime = datetime.now().strftime("%H:%M")
                 self.textbox.configure(state="normal")
                 name,content = msg.split(":",1)
-                self.textbox.insert("end",f"{name}: ","name_tag")
+                
+                self.name_tag = f"name_{name}_{random.randint(1, 10000)}"
+                def colorscheme(colorscheme):
+                    # Verschiedene colorschemes 
+
+                    if colorscheme == "Standard" or colorscheme == "Coffeine":
+                        self.color = random.choice(coffeine)
+                        self.textbox.tag_config(self.name_tag, foreground=self.color, )
+                    elif colorscheme == "Lavender":
+                        self.color = random.choice(lavender)
+                        self.textbox.tag_config(self.name_tag,foreground=self.color)
+                    elif colorscheme == "Quiet":
+                        self.color = random.choice(quiet)
+                        self.textbox.tag_config(self.name_tag,foreground=self.color)
+                        
+                colorscheme(text_color)
+                self.textbox.insert("end",f"[{self.datetime}] ","date_tag")
+                self.textbox.insert("end",f"{name}: ",self.name_tag)
                 self.textbox.insert("end",f"{content} \n","content_tag")
 
-                self.textbox.yview("end")
 
+                self.textbox.yview("end")
                 self.textbox.configure(state="disabled")
+
             self.after(100,self.update_chat)
         except Exception as e:
             print(e)
 
 
 if __name__ == "__main__":
-    #run_window()
     App()
