@@ -15,7 +15,7 @@ simple twitch chat app written in python with customtkinter.
 </details>
 
 
-# Running Localy
+# Running Locally
 ```bash
 git clone https://github.com/Moritz344/Private-Twitch.git
 cd src
