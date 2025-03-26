@@ -1,7 +1,8 @@
 {
     "settings": {
-        "text_color": "Coffeine",
-        "borderSpacing": 0
+        "colorscheme": "coffeine",
+        "borderSpacing": 0,
+        "font_size": 25
     },
     "colorschemes": {
         "coffeine": [

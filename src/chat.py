@@ -38,6 +38,7 @@ class Chat(commands.Bot):
             chat_queue.put(chat_message)
         except Exception as e:
             print(e)
+            CTkMessagebox.CTkMessagebox(master=self,message="Streamer offline or not existend!",icon="warning")
 
 
 
@@ -48,10 +49,12 @@ def run_chat(channel,window):
         bot = Chat(channel)
         loop.run_until_complete(bot.run())
 
-    except Exception:
+    except Exception as e:
         CTkMessagebox.CTkMessagebox(window,icon="warning",font=("opensans",15),
         message="Please check If your access token is correct and restart the app. ",title="TOKEN")
         print("Vermutlich weil kein ACCESS TOKEN eingegeben wurde.")
+        
+        stop_chat()
 
 def stop_chat():
     print("Stopping chat ...")

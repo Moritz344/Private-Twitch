@@ -88,10 +88,8 @@ class NavBar(object):
         font=("opensans",30)).place(x=35,y=20)
 
         self.chat_thread = None
+        self.streamer_on = False
 
-    def update_textbox(self):
-        self.textbox.configure(text_color=text_color,
-        border_spacing=borderSpacing)
     
     def about_window(self):
         window = ctk.CTkToplevel()
@@ -117,7 +115,10 @@ for my twitch chat so don't expect to much.
     def settings_window(self):
         window = ctk.CTkToplevel()
         window.title("Settings")
-        window.geometry("500x500")
+        window.geometry("500x600")
+        window.minsize(500,600)
+        window.maxsize(500,600)
+
 
         # font größe ändern
 
@@ -153,12 +154,12 @@ for my twitch chat so don't expect to much.
             except Exception as e:
                 print(e)
 
-        def save_text_color(choice):
-            write_preferences_to_json("settings","text_color",choice)       
-            
         def change_border_spacing(value):
             write_preferences_to_json("settings","borderSpacing",value)
-
+        def change_font_size(v):
+            write_preferences_to_json("settings","font_size",v)
+        def colorscheme_title(choice):
+            write_preferences_to_json("settings","colorscheme",choice)
 
         # border spacing,font
         
@@ -187,16 +188,23 @@ for my twitch chat so don't expect to much.
         self.token_input.pack(padx=50,pady=100)
 
         
-        ctk.CTkLabel(window,text="COLORSCHEMES",font=("opensans",30),text_color=self.text_color).place(x=150,y=200)
+        ctk.CTkLabel(window,text="COLORSCHEMES",
+        font=("opensans",30),text_color=self.text_color).place(x=125,y=200)
         
-        text_color_list = ["Coffeine","Lavender","Quiet"]
+        text_color_list = ["coffeine","lavender","quiet"]
 
         self.optionmenu_1 = ctk.CTkOptionMenu(window,width=240,
         values=text_color_list,fg_color=self.background_color,button_color="#458588",
-        command=save_text_color,button_hover_color=self.hover_color)
+        button_hover_color=self.hover_color,command=colorscheme_title)
+        
+        ctk.CTkLabel(window,text="FONT SIZE",font=("",30),text_color=self.text_color).place(x=170,y=450)
+        self.spinbox_2 = CTkSpinbox(window,max_value=50,start_value=30,min_value=0,
+        command=change_font_size)
+        self.spinbox_2.set(font_size)
+        self.spinbox_2.place(x=190,y=500)
+        
 
-
-        self.optionmenu_1.set(text_color)
+        self.optionmenu_1.set(colorscheme)
         self.optionmenu_1.place(x=135,y=250)
         
         write_token()
@@ -213,7 +221,7 @@ for my twitch chat so don't expect to much.
 
     def switch_streamer(self):
         
-        self.submit_btn.configure(state="disabled")
+        #self.submit_btn.configure(state="disabled")
         new_channel = self.channel_var.get()
         self.streamer = new_channel
 
@@ -221,8 +229,9 @@ for my twitch chat so don't expect to much.
         self.cat_label.place_forget()
 
         try:
-            self.stop_chat()
-            self.start_chat(self.streamer)
+            if not self.streamer_on:
+                self.streamer_on = True
+                self.start_chat(self.streamer)
         except Exception as e:
             print("ai can't solve this one for sure",e) 
 
@@ -300,14 +309,15 @@ for my twitch chat so don't expect to much.
 class App(ctk.CTk):
     def __init__(self):
         super().__init__()
-        self.title("meow")
+        self.channel_name = channel
+        self.title(f"Reading someones's chat")
         self.geometry("800x710")
 
         self.minsize(800,710)
         self.maxsize(1920,1080)
         
-        self.channel_name = channel
         self.streamer = []
+
 
 
         self.fg_color = "#edd892"
@@ -349,26 +359,30 @@ class App(ctk.CTk):
             while not chat_queue.empty():
                 msg = chat_queue.get()
                 
-                
                 self.datetime = datetime.now().strftime("%H:%M")
                 self.textbox.configure(state="normal")
                 name,content = msg.split(":",1)
                 
+                
+                def update_textbox():
+                    self.textbox.configure(
+                    border_spacing=borderSpacing,font=("opensans",font_size))
+                update_textbox()
                 self.name_tag = f"name_{name}_{random.randint(1, 10000)}"
-                def colorscheme(colorscheme):
+                def colorscheme_func(colorscheme):
                     # Verschiedene colorschemes 
 
-                    if colorscheme == "Standard" or colorscheme == "Coffeine":
+                    if colorscheme == "Standard" or colorscheme == "coffeine":
                         self.color = random.choice(coffeine)
                         self.textbox.tag_config(self.name_tag, foreground=self.color, )
-                    elif colorscheme == "Lavender":
+                    elif colorscheme == "lavender":
                         self.color = random.choice(lavender)
                         self.textbox.tag_config(self.name_tag,foreground=self.color)
-                    elif colorscheme == "Quiet":
+                    elif colorscheme == "quiet":
                         self.color = random.choice(quiet)
                         self.textbox.tag_config(self.name_tag,foreground=self.color)
                         
-                colorscheme(text_color)
+                colorscheme_func(colorscheme)
                 self.textbox.insert("end",f"[{self.datetime}] ","date_tag")
                 self.textbox.insert("end",f"{name}: ",self.name_tag)
                 self.textbox.insert("end",f"{content} \n","content_tag")
@@ -376,8 +390,9 @@ class App(ctk.CTk):
 
                 self.textbox.yview("end")
                 self.textbox.configure(state="disabled")
-
+            
             self.after(100,self.update_chat)
+
         except Exception as e:
             print(e)
 

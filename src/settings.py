@@ -1,14 +1,22 @@
 import json
+
 def get_data() -> str:
 
     with open("data.json","r") as file:
 
         data = json.load(file)
         
+        colorscheme = data["settings"]["colorscheme"]
+        borderSpacing = data["settings"]["borderSpacing"]
+        font_size = data["settings"]["font_size"]
+        
+        # COLORSCHEMES (TEXT)
 
-        text_color = data["settings"]["text_color"]
+        coffeine = data["colorschemes"]["coffeine"]
+        lavender = data["colorschemes"]["lavender"]
+        quiet = data["colorschemes"]["quiet"]
 
 
-        return text_color
+        return borderSpacing,coffeine,lavender,quiet,font_size,colorscheme
 
-text_color = get_data()
+borderSpacing,coffeine,lavender,quiet,font_size,colorscheme = get_data()
