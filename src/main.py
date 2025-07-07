@@ -353,7 +353,6 @@ class App(ctk.CTk):
 
 
     def move_textbox(self):
-        print("Move textbox")
         self.textbox.yview_moveto(1.0)
 
     def update_chat(self):

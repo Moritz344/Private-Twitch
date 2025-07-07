@@ -1,0 +1,8 @@
+customtkinter
+twitchio
+dotenv
+CTkSpinbox
+CTkToolTip
+pillow
+termcolor
+CTkMessagebox
