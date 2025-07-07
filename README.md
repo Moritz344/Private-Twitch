@@ -1,15 +1,15 @@
 # Twitch-App-Gui
 simple twitch chat app written in python with customtkinter.
 
-![Screenshot_109](https://github.com/user-attachments/assets/ef64b5aa-16f3-48cf-a072-20246b7a0464)
+![chat_1](https://github.com/user-attachments/assets/239573f4-b622-4627-a821-d8a7b3afad7a)
+
 
 <details>
+  
 
 <summary>Screenshots</summary>
 
-![Screenshot_115](https://github.com/user-attachments/assets/8d746576-48f6-4987-aece-3ab54a93f378)
-
-![Screenshot_114](https://github.com/user-attachments/assets/c8c0d186-cd07-4190-8483-489ae1f9729f)
+![chat_2](https://github.com/user-attachments/assets/41f24dc0-7005-477d-afcb-bfe74a4cbc1e)
 
 
 </details>
