@@ -311,10 +311,10 @@ class App(ctk.CTk):
         super().__init__()
         self.channel_name = channel
         self.title(f"Reading someones's chat")
-        self.geometry("800x710")
+        self.geometry("800x750")
 
-        self.minsize(800,710)
-        self.maxsize(1920,1080)
+        self.minsize(800,750)
+        self.maxsize(800,750)
         
         self.streamer = []
 
@@ -323,8 +323,8 @@ class App(ctk.CTk):
         self.fg_color = "#edd892"
         self.random_color = ["red","blue"]
 
-        self.textbox = ctk.CTkTextbox(self,width=1920,height=1080,
-        font=("opensans",20),text_color="white",border_spacing=borderSpacing,fg_color="#2a2b2a")
+        self.textbox = ctk.CTkTextbox(self,width=800,height=710,
+        font=("opensans",20),text_color="white",border_spacing=borderSpacing,fg_color="#2a2b2a",activate_scrollbars=True)
         self.textbox.place(x=0,y=50)
         self.textbox.insert("end","No Streamer added yet :/ \n")
         self.textbox.insert("end","----------------------------\n")
@@ -352,6 +352,9 @@ class App(ctk.CTk):
         self.mainloop()
 
 
+    def move_textbox(self):
+        print("Move textbox")
+        self.textbox.yview_moveto(1.0)
 
     def update_chat(self):
         try:
@@ -387,10 +390,9 @@ class App(ctk.CTk):
                 self.textbox.insert("end",f"{name}: ",self.name_tag)
                 self.textbox.insert("end",f"{content} \n","content_tag")
 
-
-                self.textbox.yview("end")
                 self.textbox.configure(state="disabled")
             
+            self.after(10, lambda: self.move_textbox())
             self.after(100,self.update_chat)
 
         except Exception as e:
